@@ -1,0 +1,6 @@
+[submodule "photo"]
+	path = photo
+	url = git@github.com:gonzaemon111/photo-server.git
+[submodule "photo_app"]
+	path = photo_app
+	url = git@github.com:gonzaemon111/photo-client.git
