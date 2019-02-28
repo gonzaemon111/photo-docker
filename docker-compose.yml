@@ -1,0 +1,61 @@
+version: "3"
+services:
+  photo_db:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+      - "33060:33060"
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_SOCKET: "/var/lib/mysql/mysql.sock"
+      MYSQL_HOST: photo_db
+  
+  photo_redis:
+    image: redis:alpine
+    ports:
+      - "6390:6379"
+  
+  photo_mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    command: --smallfiles
+
+  photo:
+    build: ./photo/
+    container_name: photo
+    tty: true #標準出力on
+    stdin_open: true
+    depends_on:
+      - photo_db
+      - photo_redis
+      - photo_mongodb
+    ports:
+      - "3102:3000"
+    volumes:
+      - photo-server-sync:/home/photo_server
+    command: >
+              bash -c '
+              bundle exec rails db:create && 
+              bundle exec rails db:migrate &&
+              bundle exec sidekiq -C config/sidekiq.yml -d &&
+              bundle exec rails server -b 0.0.0.0'
+  
+  photo_frontend:
+    build: ./photo_app/
+    container_name: photo_frontend
+    privileged: true
+    tty: true
+    stdin_open: true
+    volumes:
+      - photo-frontend-sync:/photo_frontend
+    ports:
+      - "3101:8080"
+    command: yarn run dev
+
+volumes:
+  photo-server-sync:
+    external: true
+  photo-frontend-sync:
+    external: true
