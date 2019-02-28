@@ -1,0 +1,24 @@
+version: '2'
+options:
+  verbose: true
+  max-attempt: 30
+syncs:
+  photo-server-sync:
+    src: './photo/'
+    notify_terminal: true
+    sync_host_ip: '0.0.0.0'
+    sync_host_port: '5000'
+    sync_strategy: 'unison'
+    sync_userid: '3100'
+    sync_excludes: [
+      'coverage', '.git', '.gitignore', 'package.json', '*.coffee',
+      '*.scss', '*.sass', 'log', 'tmp', '.cache/',
+      '.bundle', '.bash_history'
+    ]
+  photo-frontend-sync:
+    src: './photo_app/'
+    notify_terminal: true
+    sync_host_ip: '0.0.0.0'
+    sync_host_port: '6000'
+    sync_strategy: 'unison'
+    sync_excludes: ['node_modules', '.git', '.gitignore', '*.coffee']
